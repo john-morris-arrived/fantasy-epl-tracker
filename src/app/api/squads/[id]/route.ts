@@ -23,6 +23,12 @@ type SquadGoalkeeper = {
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+    
+    // Check if we're in a build environment without database access
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+    
     const squad = await prisma.squad.findUnique({
       where: {
         id: parseInt(id)

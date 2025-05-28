@@ -1,8 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
+    // Check if we're in a build environment without database access
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+    
     console.log('Fetching squads from database...');
     const squads = await prisma.squad.findMany({
       include: {
@@ -15,59 +20,46 @@ export async function GET() {
     return NextResponse.json(squads);
   } catch (error) {
     console.error('Error fetching squads:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-type CreateSquadData = {
-  name: string;
-  goalkeeper: {
-    id: number;
-    name: string;
-    addedDate: string;
-  };
-  teams: Array<{
-    id: number;
-    name: string;
-    addedDate: string;
-  }>;
-  players: Array<{
-    id: number;
-    name: string;
-    addedDate: string;
-  }>;
-};
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body: CreateSquadData = await request.json();
-    console.log('Creating new squad:', body);
+    // Check if we're in a build environment without database access
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+    
+    const body = await request.json();
+    const { name, goalkeeper, teams, players } = body;
 
-    // Create the squad in the database
+    console.log('Creating new squad:', { name, goalkeeper, teams, players });
+
     const newSquad = await prisma.squad.create({
       data: {
-        name: body.name,
-        goalkeeper: {
+        name,
+        goalkeeper: goalkeeper.id ? {
           create: {
-            id: body.goalkeeper.id,
-            name: body.goalkeeper.name,
-            addedDate: body.goalkeeper.addedDate,
-          },
-        },
+            id: goalkeeper.id,
+            name: goalkeeper.name,
+            addedDate: new Date(goalkeeper.addedDate)
+          }
+        } : undefined,
         teams: {
-          create: body.teams.map((team) => ({
+          create: teams.map((team: { id: number; name: string; addedDate: string }) => ({
             id: team.id,
             name: team.name,
-            addedDate: team.addedDate,
-          })),
+            addedDate: new Date(team.addedDate)
+          }))
         },
         players: {
-          create: body.players.map((player) => ({
+          create: players.map((player: { id: number; name: string; addedDate: string }) => ({
             id: player.id,
             name: player.name,
-            addedDate: player.addedDate,
-          })),
-        },
+            addedDate: new Date(player.addedDate)
+          }))
+        }
       },
       include: {
         goalkeeper: true,
@@ -80,6 +72,6 @@ export async function POST(request: Request) {
     return NextResponse.json(newSquad);
   } catch (error) {
     console.error('Error creating squad:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

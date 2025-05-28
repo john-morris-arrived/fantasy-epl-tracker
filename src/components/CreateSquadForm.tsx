@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,19 +27,39 @@ type ApiTeam = {
   short_name: string;
 };
 
-type CreateSquadFormProps = {
-  fplData: {
-    elements: ApiPlayer[];
-    teams: ApiTeam[];
-  };
-};
-
-export function CreateSquadForm({ fplData }: CreateSquadFormProps) {
+export function CreateSquadForm() {
   const router = useRouter();
   const [squadName, setSquadName] = useState('');
   const [selectedGoalkeeper, setSelectedGoalkeeper] = useState<ApiPlayer | null>(null);
   const [selectedTeams, setSelectedTeams] = useState<ApiTeam[]>([]);
   const [selectedPlayers, setSelectedPlayers] = useState<ApiPlayer[]>([]);
+  const [fplData, setFplData] = useState<{ elements: ApiPlayer[]; teams: ApiTeam[] } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchFPLData() {
+      try {
+        const response = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch FPL data');
+        }
+        
+        const data = await response.json();
+        setFplData({
+          elements: data.elements,
+          teams: data.teams
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchFPLData();
+  }, []);
 
   const handleSave = async () => {
     if (!squadName.trim()) {
@@ -109,111 +129,45 @@ export function CreateSquadForm({ fplData }: CreateSquadFormProps) {
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">Create New Squad</h1>
       
-      <div className="space-y-6">
-        <div className="grid gap-2">
-          <Label htmlFor="squad-name">Squad Name</Label>
-          <Input
-            id="squad-name"
-            value={squadName}
-            onChange={(e) => setSquadName(e.target.value)}
-            placeholder="Enter squad name"
-          />
+      {loading && (
+        <div className="text-center py-8">
+          <p>Loading FPL data...</p>
         </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="goalkeeper">Goalkeeper</Label>
-          <Select
-            value={selectedGoalkeeper?.id.toString() || ''}
-            onValueChange={(value: string) => {
-              const gk = fplData.elements.find(p => p.id.toString() === value);
-              setSelectedGoalkeeper(gk || null);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select goalkeeper" />
-            </SelectTrigger>
-            <SelectContent>
-              {fplData.elements
-                .filter(p => p.element_type === 1)
-                .sort((a, b) => a.second_name.localeCompare(b.second_name))
-                .map((player) => (
-                  <SelectItem key={player.id} value={player.id.toString()}>
-                    {`${player.first_name} ${player.second_name}`}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+      )}
+      
+      {error && (
+        <div className="text-center py-8 text-red-600">
+          <p>Error: {error}</p>
         </div>
+      )}
+      
+      {!loading && !error && fplData && (
+        <div className="space-y-6">
+          <div className="grid gap-2">
+            <Label htmlFor="squad-name">Squad Name</Label>
+            <Input
+              id="squad-name"
+              value={squadName}
+              onChange={(e) => setSquadName(e.target.value)}
+              placeholder="Enter squad name"
+            />
+          </div>
 
-        <div className="grid gap-2">
-          <Label>Teams (Select 2)</Label>
-          <Select
-            value={selectedTeams[0]?.id.toString() || ''}
-            onValueChange={(value: string) => {
-              const team = fplData.teams.find(t => t.id.toString() === value);
-              if (team) {
-                setSelectedTeams([team, ...selectedTeams.slice(1)]);
-              }
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select first team" />
-            </SelectTrigger>
-            <SelectContent>
-              {fplData.teams
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((team) => (
-                  <SelectItem key={team.id} value={team.id.toString()}>
-                    {team.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={selectedTeams[1]?.id.toString() || ''}
-            onValueChange={(value: string) => {
-              const team = fplData.teams.find(t => t.id.toString() === value);
-              if (team) {
-                setSelectedTeams([selectedTeams[0], team]);
-              }
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select second team" />
-            </SelectTrigger>
-            <SelectContent>
-              {fplData.teams
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((team) => (
-                  <SelectItem key={team.id} value={team.id.toString()}>
-                    {team.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="grid gap-2">
-          <Label>Players (Select 3)</Label>
-          {[0, 1, 2].map((index) => (
+          <div className="grid gap-2">
+            <Label htmlFor="goalkeeper">Goalkeeper</Label>
             <Select
-              key={index}
-              value={selectedPlayers[index]?.id.toString() || ''}
+              value={selectedGoalkeeper?.id.toString() || ''}
               onValueChange={(value: string) => {
-                const player = fplData.elements.find(p => p.id.toString() === value);
-                if (player) {
-                  const newPlayers = [...selectedPlayers];
-                  newPlayers[index] = player;
-                  setSelectedPlayers(newPlayers);
-                }
+                const gk = fplData?.elements.find(p => p.id.toString() === value);
+                setSelectedGoalkeeper(gk || null);
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder={`Select player ${index + 1}`} />
+                <SelectValue placeholder="Select goalkeeper" />
               </SelectTrigger>
               <SelectContent>
-                {fplData.elements
-                  .filter(p => p.element_type !== 1) // Exclude goalkeepers
+                {fplData?.elements
+                  .filter(p => p.element_type === 1)
                   .sort((a, b) => a.second_name.localeCompare(b.second_name))
                   .map((player) => (
                     <SelectItem key={player.id} value={player.id.toString()}>
@@ -222,18 +176,98 @@ export function CreateSquadForm({ fplData }: CreateSquadFormProps) {
                   ))}
               </SelectContent>
             </Select>
-          ))}
-        </div>
+          </div>
 
-        <div className="flex justify-end space-x-4">
-          <Button variant="outline" onClick={() => router.push('/squads')}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>
-            Create Squad
-          </Button>
+          <div className="grid gap-2">
+            <Label>Teams (Select 2)</Label>
+            <Select
+              value={selectedTeams[0]?.id.toString() || ''}
+              onValueChange={(value: string) => {
+                const team = fplData?.teams.find(t => t.id.toString() === value);
+                if (team) {
+                  setSelectedTeams([team, ...selectedTeams.slice(1)]);
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select first team" />
+              </SelectTrigger>
+              <SelectContent>
+                {fplData?.teams
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((team) => (
+                    <SelectItem key={team.id} value={team.id.toString()}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={selectedTeams[1]?.id.toString() || ''}
+              onValueChange={(value: string) => {
+                const team = fplData?.teams.find(t => t.id.toString() === value);
+                if (team) {
+                  setSelectedTeams([selectedTeams[0], team]);
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select second team" />
+              </SelectTrigger>
+              <SelectContent>
+                {fplData?.teams
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((team) => (
+                    <SelectItem key={team.id} value={team.id.toString()}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Players (Select 3)</Label>
+            {[0, 1, 2].map((index) => (
+              <Select
+                key={index}
+                value={selectedPlayers[index]?.id.toString() || ''}
+                onValueChange={(value: string) => {
+                  const player = fplData?.elements.find(p => p.id.toString() === value);
+                  if (player) {
+                    const newPlayers = [...selectedPlayers];
+                    newPlayers[index] = player;
+                    setSelectedPlayers(newPlayers);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={`Select player ${index + 1}`} />
+                </SelectTrigger>
+                <SelectContent>
+                  {fplData?.elements
+                    .filter(p => p.element_type !== 1) // Exclude goalkeepers
+                    .sort((a, b) => a.second_name.localeCompare(b.second_name))
+                    .map((player) => (
+                      <SelectItem key={player.id} value={player.id.toString()}>
+                        {`${player.first_name} ${player.second_name}`}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            ))}
+          </div>
+
+          <div className="flex justify-end space-x-4">
+            <Button variant="outline" onClick={() => router.push('/squads')}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>
+              Create Squad
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 } 

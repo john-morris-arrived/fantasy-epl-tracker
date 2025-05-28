@@ -3,6 +3,11 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
+    // Check if we're in a build environment without database access
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+    
     const transfers = await prisma.transfer.findMany({
       orderBy: {
         date: 'desc'
