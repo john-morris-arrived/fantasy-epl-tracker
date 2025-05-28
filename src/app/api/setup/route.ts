@@ -4,10 +4,26 @@ import { prisma } from '@/lib/prisma';
 export async function POST() {
   try {
     // Check if we're in a build environment without database access
-    if (!process.env.DATABASE_URL || !prisma) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ error: 'DATABASE_URL not set' }, { status: 503 });
     }
 
+    console.log('DATABASE_URL is set, testing connection...');
+    
+    // Test the database connection first
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      console.log('Database connection successful');
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
+      return NextResponse.json({ 
+        error: 'Database connection failed', 
+        details: dbError instanceof Error ? dbError.message : 'Unknown error'
+      }, { status: 503 });
+    }
+
+    console.log('Creating tables...');
+    
     // This will create the tables if they don't exist
     await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "Squad" (
@@ -62,13 +78,13 @@ export async function POST() {
       );
     `;
 
+    console.log('Database setup completed successfully');
     return NextResponse.json({ message: 'Database setup completed successfully' });
   } catch (error) {
     console.error('Error setting up database:', error);
-    // If it's a database connection error, return 503
-    if (error instanceof Error && error.message.includes('DATABASE_URL')) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
-    }
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 } 
