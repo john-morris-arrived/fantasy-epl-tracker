@@ -79,19 +79,19 @@ export default function SquadScoringPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper function to get team multiplier (same as calculatePoints.ts)
-  const getTeamMultiplier = (teamName: string) => {
-    const lowerTeamName = teamName.toLowerCase();
-    if (["arsenal", "liverpool", "manchester city", "man city"].includes(lowerTeamName)) {
-      return 0.8;
-    }
-    if (["ipswich town", "ipswich", "leicester city", "leicester", "southampton"].includes(lowerTeamName)) {
-      return 1.25;
-    }
-    return 1;
-  };
-
   const calculateSquadScores = useCallback((squads: Squad[], fplData: FPLData, fixtures: Fixture[]): SquadScore[] => {
+    // Helper function to get team multiplier (same as calculatePoints.ts)
+    const getTeamMultiplier = (teamName: string) => {
+      const lowerTeamName = teamName.toLowerCase();
+      if (["arsenal", "liverpool", "manchester city", "man city"].includes(lowerTeamName)) {
+        return 0.8;
+      }
+      if (["ipswich town", "ipswich", "leicester city", "leicester", "southampton"].includes(lowerTeamName)) {
+        return 1.25;
+      }
+      return 1;
+    };
+
     return squads.map(squad => {
       // Calculate goalkeeper points (clean sheets * 25)
       const goalkeeper = fplData.elements.find(p => p.id === squad.goalkeeper.id && p.element_type === 1);
@@ -146,7 +146,7 @@ export default function SquadScoringPage() {
         totalScore
       };
     }).sort((a, b) => b.totalScore - a.totalScore); // Sort by total score descending
-  }, [getTeamMultiplier]);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
