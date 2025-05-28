@@ -4,8 +4,8 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
   try {
     // Check if we're in a build environment without database access
-    if (!process.env.DATABASE_URL) {
-      return NextResponse.json({ error: 'DATABASE_URL not set' }, { status: 503 });
+    if (!process.env.DATABASE_URL || !prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
     }
     
     // Test the database connection

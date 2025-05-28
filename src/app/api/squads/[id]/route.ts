@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
 
 type SquadTeam = {
   id: number;
@@ -89,7 +88,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Use a transaction to ensure all operations succeed or fail together
-    const updatedSquad = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    // @ts-ignore
+    const updatedSquad = await prisma.$transaction(async (tx) => {
       // Create transfer records for changes
       const transfers = [];
 
@@ -118,11 +118,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       }
 
       // Check team changes
-      const currentTeamIds = new Set(currentSquad.teams.map(t => t.id));
-      const newTeamIds = new Set(teams.map(t => t.id));
+      const currentTeamIds = new Set(currentSquad.teams.map((t: any) => t.id));
+      const newTeamIds = new Set(teams.map((t: any) => t.id));
 
       // Removed teams
-      currentSquad.teams.forEach(team => {
+      currentSquad.teams.forEach((team: any) => {
         if (!newTeamIds.has(team.id)) {
           transfers.push({
             squadId,
@@ -136,7 +136,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       });
 
       // Added teams
-      teams.forEach(team => {
+      teams.forEach((team: any) => {
         if (!currentTeamIds.has(team.id)) {
           transfers.push({
             squadId,
@@ -150,11 +150,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       });
 
       // Check player changes
-      const currentPlayerIds = new Set(currentSquad.players.map(p => p.id));
-      const newPlayerIds = new Set(players.map(p => p.id));
+      const currentPlayerIds = new Set(currentSquad.players.map((p: any) => p.id));
+      const newPlayerIds = new Set(players.map((p: any) => p.id));
 
       // Removed players
-      currentSquad.players.forEach(player => {
+      currentSquad.players.forEach((player: any) => {
         if (!newPlayerIds.has(player.id)) {
           transfers.push({
             squadId,
@@ -168,7 +168,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       });
 
       // Added players
-      players.forEach(player => {
+      players.forEach((player: any) => {
         if (!currentPlayerIds.has(player.id)) {
           transfers.push({
             squadId,
