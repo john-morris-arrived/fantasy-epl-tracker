@@ -25,7 +25,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { id } = await params;
     
     // Check if we're in a build environment without database access
-    if (!process.env.DATABASE_URL) {
+    if (!process.env.DATABASE_URL || !prisma) {
       return NextResponse.json({ error: 'Database not available' }, { status: 503 });
     }
     
@@ -47,6 +47,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(squad);
   } catch (error) {
     console.error('Error fetching squad:', error);
+    // If it's a database connection error, return 503
+    if (error instanceof Error && error.message.includes('DATABASE_URL')) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -54,6 +58,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+    
+    // Check if we're in a build environment without database access
+    if (!process.env.DATABASE_URL || !prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+    
     const body = await request.json();
     const { name, goalkeeper, teams, players }: {
       name: string;
@@ -227,6 +237,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(updatedSquad);
   } catch (error) {
     console.error('Error updating squad:', error);
+    // If it's a database connection error, return 503
+    if (error instanceof Error && error.message.includes('DATABASE_URL')) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -234,6 +248,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+    
+    // Check if we're in a build environment without database access
+    if (!process.env.DATABASE_URL || !prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+    
     await prisma.squad.delete({
       where: {
         id: parseInt(id)
@@ -243,6 +263,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     return NextResponse.json({ message: 'Squad deleted successfully' });
   } catch (error) {
     console.error('Error deleting squad:', error);
+    // If it's a database connection error, return 503
+    if (error instanceof Error && error.message.includes('DATABASE_URL')) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
