@@ -1,0 +1,309 @@
+{
+  "squads": [
+    {
+      "id": 1,
+      "name": "John Morris",
+      "goalkeeper": {
+        "id": 1,
+        "name": "Alisson",
+        "added": "2024-09-01T00:00:00.000Z"
+      },
+      "teams": [
+        {
+          "id": 1,
+          "name": "Arsenal",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 11,
+          "name": "Liverpool",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ],
+      "players": [
+        {
+          "id": 1,
+          "name": "Erling Haaland",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 2,
+          "name": "Mohamed Salah",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 3,
+          "name": "Bukayo Saka",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "James Morris",
+      "goalkeeper": {
+        "id": 2,
+        "name": "Ederson",
+        "added": "2024-09-01T00:00:00.000Z"
+      },
+      "teams": [
+        {
+          "id": 3,
+          "name": "Manchester City",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 1,
+          "name": "Arsenal",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ],
+      "players": [
+        {
+          "id": 4,
+          "name": "Ollie Watkins",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 5,
+          "name": "Jarrod Bowen",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 6,
+          "name": "Cole Palmer",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Tom Morris",
+      "goalkeeper": {
+        "id": 3,
+        "name": "David Raya",
+        "added": "2024-09-01T00:00:00.000Z"
+      },
+      "teams": [
+        {
+          "id": 11,
+          "name": "Liverpool",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 3,
+          "name": "Manchester City",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ],
+      "players": [
+        {
+          "id": 7,
+          "name": "Dominic Solanke",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 8,
+          "name": "Phil Foden",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "name": "Son Heung-min",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Will Morris",
+      "goalkeeper": {
+        "id": 4,
+        "name": "Emiliano Martínez",
+        "added": "2024-09-01T00:00:00.000Z"
+      },
+      "teams": [
+        {
+          "id": 1,
+          "name": "Arsenal",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 3,
+          "name": "Manchester City",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ],
+      "players": [
+        {
+          "id": 10,
+          "name": "Alexander Isak",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 11,
+          "name": "Richarlison",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 12,
+          "name": "Rodri",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Charlie Morris",
+      "goalkeeper": {
+        "id": 5,
+        "name": "Nick Pope",
+        "added": "2024-09-01T00:00:00.000Z"
+      },
+      "teams": [
+        {
+          "id": 11,
+          "name": "Liverpool",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 1,
+          "name": "Arsenal",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ],
+      "players": [
+        {
+          "id": 13,
+          "name": "Bruno Fernandes",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 14,
+          "name": "Kevin De Bruyne",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 15,
+          "name": "Bernardo Silva",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Harry Morris",
+      "goalkeeper": {
+        "id": 6,
+        "name": "Jordan Pickford",
+        "added": "2024-09-01T00:00:00.000Z"
+      },
+      "teams": [
+        {
+          "id": 3,
+          "name": "Manchester City",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 11,
+          "name": "Liverpool",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ],
+      "players": [
+        {
+          "id": 16,
+          "name": "Martin Ødegaard",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 17,
+          "name": "Trent Alexander-Arnold",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 18,
+          "name": "Declan Rice",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "George Morris",
+      "goalkeeper": {
+        "id": 7,
+        "name": "André Onana",
+        "added": "2024-09-01T00:00:00.000Z"
+      },
+      "teams": [
+        {
+          "id": 1,
+          "name": "Arsenal",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 3,
+          "name": "Manchester City",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ],
+      "players": [
+        {
+          "id": 19,
+          "name": "Kai Havertz",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 20,
+          "name": "Gabriel Martinelli",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 21,
+          "name": "Luis Díaz",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Jack Morris",
+      "goalkeeper": {
+        "id": 8,
+        "name": "Bernd Leno",
+        "added": "2024-09-01T00:00:00.000Z"
+      },
+      "teams": [
+        {
+          "id": 11,
+          "name": "Liverpool",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 1,
+          "name": "Arsenal",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ],
+      "players": [
+        {
+          "id": 22,
+          "name": "Diogo Jota",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 23,
+          "name": "Darwin Núñez",
+          "added": "2024-09-01T00:00:00.000Z"
+        },
+        {
+          "id": 24,
+          "name": "Gabriel Jesus",
+          "added": "2024-09-01T00:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "transfers": []
+} 
