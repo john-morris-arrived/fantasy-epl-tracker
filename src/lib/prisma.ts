@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client/edge';
+import { withAccelerate } from '@prisma/extension-accelerate';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -9,7 +10,7 @@ function createPrismaClient() {
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not defined');
   }
-  return new PrismaClient();
+  return new PrismaClient().$extends(withAccelerate());
 }
 
 export const prisma = globalForPrisma.prisma ?? 
