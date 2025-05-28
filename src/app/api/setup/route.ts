@@ -22,64 +22,37 @@ export async function POST() {
       }, { status: 503 });
     }
 
-    console.log('Creating tables...');
+    console.log('Checking if tables exist...');
     
-    // This will create the tables if they don't exist
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "Squad" (
-        "id" SERIAL PRIMARY KEY,
-        "name" TEXT NOT NULL,
-        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
+    // Check if tables already exist by trying to query one
+    try {
+      await prisma.squad.findFirst();
+      console.log('Tables already exist');
+      return NextResponse.json({ message: 'Database already set up' });
+    } catch {
+      console.log('Tables do not exist, need to create them');
+    }
 
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "Goalkeeper" (
-        "id" SERIAL PRIMARY KEY,
-        "name" TEXT NOT NULL,
-        "addedDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "squadId" INTEGER NOT NULL UNIQUE,
-        FOREIGN KEY ("squadId") REFERENCES "Squad"("id") ON DELETE CASCADE
-      );
-    `;
-
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "Team" (
-        "id" SERIAL PRIMARY KEY,
-        "name" TEXT NOT NULL,
-        "addedDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "squadId" INTEGER NOT NULL,
-        FOREIGN KEY ("squadId") REFERENCES "Squad"("id") ON DELETE CASCADE
-      );
-    `;
-
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "Player" (
-        "id" SERIAL PRIMARY KEY,
-        "name" TEXT NOT NULL,
-        "addedDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "squadId" INTEGER NOT NULL,
-        FOREIGN KEY ("squadId") REFERENCES "Squad"("id") ON DELETE CASCADE
-      );
-    `;
-
-    await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "Transfer" (
-        "id" SERIAL PRIMARY KEY,
-        "squadId" INTEGER NOT NULL,
-        "squadName" TEXT NOT NULL,
-        "type" TEXT NOT NULL,
-        "playerId" INTEGER NOT NULL,
-        "playerName" TEXT NOT NULL,
-        "action" TEXT NOT NULL,
-        "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY ("squadId") REFERENCES "Squad"("id") ON DELETE CASCADE
-      );
-    `;
-
-    console.log('Database setup completed successfully');
-    return NextResponse.json({ message: 'Database setup completed successfully' });
+    // Since we can't create tables with raw SQL due to permissions,
+    // let's try to use Prisma's introspection and push
+    try {
+      // This is a workaround - we'll return instructions for manual setup
+      return NextResponse.json({ 
+        error: 'Database schema needs to be created',
+        message: 'Please run "npx prisma db push" locally with the production DATABASE_URL to create the schema',
+        instructions: [
+          '1. Run: vercel env pull .env.production',
+          '2. Run: DATABASE_URL=$(grep DATABASE_URL .env.production | cut -d= -f2-) npx prisma db push',
+          '3. Or contact support to grant schema creation permissions'
+        ]
+      }, { status: 400 });
+    } catch (error) {
+      console.error('Error in setup process:', error);
+      return NextResponse.json({ 
+        error: 'Setup failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }, { status: 500 });
+    }
   } catch (error) {
     console.error('Error setting up database:', error);
     return NextResponse.json({ 
