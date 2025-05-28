@@ -5,15 +5,26 @@ export async function GET() {
   try {
     // Check if we're in a build environment without database access
     if (!process.env.DATABASE_URL || !prisma) {
+      console.error('Database not available: DATABASE_URL or prisma client missing');
       return NextResponse.json({ error: 'Database not available' }, { status: 503 });
     }
     
-    // Test the database connection
+    // Test the database connection with timeout
     try {
-      await prisma.$queryRaw`SELECT 1`;
+      console.log('Testing database connection...');
+      const connectionTest = await Promise.race([
+        prisma.$queryRaw`SELECT 1`,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Database connection timeout')), 5000)
+        )
+      ]);
+      console.log('Database connection successful');
     } catch (dbError) {
       console.error('Database connection failed:', dbError);
-      return NextResponse.json({ error: 'Database connection failed' }, { status: 503 });
+      return NextResponse.json({ 
+        error: 'Database connection failed',
+        details: dbError instanceof Error ? dbError.message : 'Unknown database error'
+      }, { status: 503 });
     }
     
     console.log('Fetching squads from database...');
@@ -28,11 +39,33 @@ export async function GET() {
     return NextResponse.json(squads);
   } catch (error) {
     console.error('Error fetching squads:', error);
-    // If it's a database connection error, return 503
-    if (error instanceof Error && error.message.includes('DATABASE_URL')) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    
+    // More specific error handling
+    if (error instanceof Error) {
+      if (error.message.includes('DATABASE_URL')) {
+        return NextResponse.json({ 
+          error: 'Database configuration error',
+          details: error.message 
+        }, { status: 503 });
+      }
+      if (error.message.includes('timeout')) {
+        return NextResponse.json({ 
+          error: 'Database timeout',
+          details: 'Database query took too long to respond' 
+        }, { status: 504 });
+      }
+      if (error.message.includes('connection')) {
+        return NextResponse.json({ 
+          error: 'Database connection error',
+          details: error.message 
+        }, { status: 503 });
+      }
     }
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
 

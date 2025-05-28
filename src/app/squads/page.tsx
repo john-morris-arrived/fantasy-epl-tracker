@@ -43,23 +43,49 @@ export default function SquadsPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [squadsResponse, fplResponse] = await Promise.all([
-          fetch('/api/squads'),
-          fetch('/api/fpl/bootstrap')
-        ]);
+        setError(null);
+        
+        // Fetch squads first, then FPL data to avoid overwhelming the APIs
+        console.log('Fetching squads...');
+        const squadsResponse = await fetch('/api/squads');
         
         if (!squadsResponse.ok) {
-          throw new Error(`HTTP error! status: ${squadsResponse.status}`);
-        }
-        if (!fplResponse.ok) {
-          throw new Error(`HTTP error! status: ${fplResponse.status}`);
+          const errorText = await squadsResponse.text();
+          throw new Error(`Failed to fetch squads: ${squadsResponse.status} - ${errorText}`);
         }
         
         const squadsData = await squadsResponse.json();
-        const fplData = await fplResponse.json();
-        
-        console.log('Received squads:', squadsData);
+        console.log('Squads fetched successfully:', squadsData.length);
         setSquads(squadsData);
+        
+        // Fetch FPL data separately with retry logic
+        console.log('Fetching FPL data...');
+        let fplData = null;
+        let retries = 3;
+        
+        while (retries > 0) {
+          try {
+            const fplResponse = await fetch('/api/fpl/bootstrap');
+            if (fplResponse.ok) {
+              fplData = await fplResponse.json();
+              console.log('FPL data fetched successfully');
+              break;
+            } else {
+              throw new Error(`FPL API error: ${fplResponse.status}`);
+            }
+          } catch (fplError) {
+            retries--;
+            console.warn(`FPL fetch failed, retries left: ${retries}`, fplError);
+            if (retries === 0) {
+              console.error('FPL data fetch failed after all retries, continuing without it');
+              // Don't throw error, just continue without FPL data
+            } else {
+              // Wait a bit before retrying
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+        }
+        
         setFplData(fplData);
       } catch (err) {
         console.error('Error fetching data:', err);
