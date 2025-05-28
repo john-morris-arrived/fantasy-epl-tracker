@@ -35,7 +35,7 @@ async function getTeamRecords(): Promise<TeamStats[]> {
     ),
   ]);
 
-  const teams: Team[] = bootstrap.teams.map((t: any) => ({
+  const teams: Team[] = bootstrap.teams.map((t: { id: number; name: string }) => ({
     id: t.id,
     name: t.name,
   }));
@@ -57,7 +57,13 @@ async function getTeamRecords(): Promise<TeamStats[]> {
   });
 
   // Calculate stats from fixtures
-  fixtures.forEach((fixture: any) => {
+  fixtures.forEach((fixture: { 
+    finished: boolean; 
+    team_h: number; 
+    team_a: number; 
+    team_h_score: number; 
+    team_a_score: number; 
+  }) => {
     if (!fixture.finished) return; // Only count finished matches
 
     const { team_h, team_a, team_h_score, team_a_score } = fixture;

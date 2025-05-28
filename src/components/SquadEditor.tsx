@@ -20,30 +20,13 @@ type ApiTeam = {
 
 type SquadEditorProps = {
   squad: Squad;
-  onSave: (updatedSquad: Squad) => void;
 };
 
-function ButtonWrapper({ children, ...props }: React.ButtonHTMLAttributes<HTMLSpanElement>) {
-  return (
-    <span
-      role="button"
-      tabIndex={0}
-      className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
-      {...props}
-    >
-      {children}
-    </span>
-  );
-}
-
-export function SquadEditor({ squad, onSave }: SquadEditorProps) {
-  const [players, setPlayers] = useState<ApiPlayer[]>([]);
-  const [teams, setTeams] = useState<ApiTeam[]>([]);
+export function SquadEditor({ squad }: SquadEditorProps) {
   const [loading, setLoading] = useState(true);
   const [selectedGoalkeeper, setSelectedGoalkeeper] = useState<ApiPlayer | null>(null);
   const [selectedTeams, setSelectedTeams] = useState<ApiTeam[]>([]);
   const [selectedPlayers, setSelectedPlayers] = useState<ApiPlayer[]>([]);
-  const [squadName, setSquadName] = useState(squad.name);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -203,8 +186,6 @@ export function SquadEditor({ squad, onSave }: SquadEditorProps) {
         }).filter((player): player is ApiPlayer => player !== null);
         
         setSelectedPlayers(selectedPlayers);
-        setPlayers(allPlayers);
-        setTeams(allTeams);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -215,34 +196,6 @@ export function SquadEditor({ squad, onSave }: SquadEditorProps) {
     fetchData();
   }, [squad]);
 
-  const handleSave = () => {
-    const updatedSquad: Squad = {
-      ...squad,
-      name: squadName,
-      goalkeeper: selectedGoalkeeper ? {
-        id: selectedGoalkeeper.id,
-        name: `${selectedGoalkeeper.first_name} ${selectedGoalkeeper.second_name}`,
-        addedDate: new Date().toISOString()
-      } : {
-        id: 0,
-        name: '',
-        addedDate: ''
-      },
-      teams: selectedTeams.map(team => ({
-        id: team.id,
-        name: team.name,
-        addedDate: new Date().toISOString()
-      })),
-      players: selectedPlayers.map(player => ({
-        id: player.id,
-        name: `${player.first_name} ${player.second_name}`,
-        addedDate: new Date().toISOString()
-      }))
-    };
-    
-    onSave(updatedSquad);
-  };
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -251,7 +204,7 @@ export function SquadEditor({ squad, onSave }: SquadEditorProps) {
     <div className="space-y-4">
       <div className="grid gap-2">
         <Label>Squad Name</Label>
-        <div className="text-sm">{squadName}</div>
+        <div className="text-sm">{squad.name}</div>
       </div>
 
       <div className="grid gap-2">

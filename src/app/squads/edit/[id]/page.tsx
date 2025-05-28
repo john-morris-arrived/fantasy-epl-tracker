@@ -50,7 +50,7 @@ async function getFPLData() {
     const data = await response.json();
     console.log('FPL data fetched for edit page:', {
       totalTeams: data.teams?.length,
-      teamIdRange: data.teams ? `${Math.min(...data.teams.map(t => t.id))}-${Math.max(...data.teams.map(t => t.id))}` : 'N/A'
+      teamIdRange: data.teams ? `${Math.min(...data.teams.map((t: { id: number }) => t.id))}-${Math.max(...data.teams.map((t: { id: number }) => t.id))}` : 'N/A'
     });
     
     return data;

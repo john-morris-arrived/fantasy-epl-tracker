@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Squad } from '@/types/squad';
 import {
   Table,
@@ -79,46 +79,6 @@ export default function SquadScoringPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [squadsResponse, fplResponse, fixturesResponse] = await Promise.all([
-          fetch('/api/squads'),
-          fetch('/api/fpl/bootstrap'),
-          fetch('/api/fpl/fixtures')
-        ]);
-        
-        if (!squadsResponse.ok) {
-          throw new Error(`HTTP error! status: ${squadsResponse.status}`);
-        }
-        if (!fplResponse.ok) {
-          throw new Error(`HTTP error! status: ${fplResponse.status}`);
-        }
-        if (!fixturesResponse.ok) {
-          throw new Error(`HTTP error! status: ${fixturesResponse.status}`);
-        }
-        
-        const squadsData = await squadsResponse.json();
-        const fplData = await fplResponse.json();
-        const fixturesData = await fixturesResponse.json();
-        
-        setFplData(fplData);
-        
-        // Calculate scores for each squad
-        const scores = calculateSquadScores(squadsData, fplData, fixturesData);
-        setSquadScores(scores);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   // Helper function to get team multiplier (same as calculatePoints.ts)
   const getTeamMultiplier = (teamName: string) => {
     const lowerTeamName = teamName.toLowerCase();
@@ -131,7 +91,7 @@ export default function SquadScoringPage() {
     return 1;
   };
 
-  const calculateSquadScores = (squads: Squad[], fplData: FPLData, fixtures: Fixture[]): SquadScore[] => {
+  const calculateSquadScores = useCallback((squads: Squad[], fplData: FPLData, fixtures: Fixture[]): SquadScore[] => {
     return squads.map(squad => {
       // Calculate goalkeeper points (clean sheets * 25)
       const goalkeeper = fplData.elements.find(p => p.id === squad.goalkeeper.id && p.element_type === 1);
@@ -186,7 +146,47 @@ export default function SquadScoringPage() {
         totalScore
       };
     }).sort((a, b) => b.totalScore - a.totalScore); // Sort by total score descending
-  };
+  }, [getTeamMultiplier]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [squadsResponse, fplResponse, fixturesResponse] = await Promise.all([
+          fetch('/api/squads'),
+          fetch('/api/fpl/bootstrap'),
+          fetch('/api/fpl/fixtures')
+        ]);
+        
+        if (!squadsResponse.ok) {
+          throw new Error(`HTTP error! status: ${squadsResponse.status}`);
+        }
+        if (!fplResponse.ok) {
+          throw new Error(`HTTP error! status: ${fplResponse.status}`);
+        }
+        if (!fixturesResponse.ok) {
+          throw new Error(`HTTP error! status: ${fixturesResponse.status}`);
+        }
+        
+        const squadsData = await squadsResponse.json();
+        const fplData = await fplResponse.json();
+        const fixturesData = await fixturesResponse.json();
+        
+        setFplData(fplData);
+        
+        // Calculate scores for each squad
+        const scores = calculateSquadScores(squadsData, fplData, fixturesData);
+        setSquadScores(scores);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [calculateSquadScores]);
 
   const getPlayerName = (playerId: number): string => {
     if (!fplData) return 'Loading...';
