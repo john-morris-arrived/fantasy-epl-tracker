@@ -40,7 +40,7 @@ export function CreateSquadForm() {
   useEffect(() => {
     async function fetchFPLData() {
       try {
-        const response = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+        const response = await fetch('/api/fpl/bootstrap');
         
         if (!response.ok) {
           throw new Error('Failed to fetch FPL data');
