@@ -112,8 +112,8 @@ export default function SquadsPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6">Squads</h1>
+      <div className="container mx-auto py-4 px-4 md:py-8">
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Squads</h1>
         <div className="text-center text-gray-500">Loading squads...</div>
       </div>
     );
@@ -121,8 +121,8 @@ export default function SquadsPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6">Squads</h1>
+      <div className="container mx-auto py-4 px-4 md:py-8">
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Squads</h1>
         <div className="text-center text-red-500">Error: {error}</div>
       </div>
     );
@@ -130,11 +130,11 @@ export default function SquadsPage() {
 
   if (!squads.length) {
     return (
-      <div className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Squads</h1>
+      <div className="container mx-auto py-4 px-4 md:py-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 md:mb-6">
+          <h1 className="text-xl md:text-2xl font-bold">Squads</h1>
           <Link href="/squads/create">
-            <Button>Add Squad</Button>
+            <Button className="w-full sm:w-auto">Add Squad</Button>
           </Link>
         </div>
         <div className="text-center text-gray-500">No squads found</div>
@@ -143,57 +143,100 @@ export default function SquadsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Squads</h1>
+    <div className="container mx-auto py-4 px-4 md:py-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 md:mb-6">
+        <h1 className="text-xl md:text-2xl font-bold">Squads</h1>
         <Link href="/squads/create">
-          <Button>Add Squad</Button>
+          <Button className="w-full sm:w-auto">Add Squad</Button>
         </Link>
       </div>
       
-      <div className="grid gap-6">
+      <div className="grid gap-4 md:gap-6">
         {squads.map((squad) => (
           <Card key={squad.id}>
-            <CardHeader>
-              <CardTitle>{squad.name}</CardTitle>
+            <CardHeader className="pb-3 md:pb-6">
+              <CardTitle className="text-lg md:text-xl">{squad.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Goalkeeper</TableHead>
-                    <TableHead>Teams</TableHead>
-                    <TableHead>Players</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
+              {/* Mobile Layout */}
+              <div className="block md:hidden">
+                <div className="space-y-4">
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="font-medium text-sm text-gray-600 mb-1">Goalkeeper</div>
+                    <div className="text-sm">
                       {squad.goalkeeper?.id ? getPlayerName(squad.goalkeeper.id) : 'No goalkeeper'}
-                    </TableCell>
-                    <TableCell>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="font-medium text-sm text-gray-600 mb-1">Teams</div>
+                    <div className="text-sm">
                       {squad.teams?.length ? 
                         squad.teams.map(team => getTeamName(team.id)).join(', ') : 
                         'No teams'
                       }
-                    </TableCell>
-                    <TableCell>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="font-medium text-sm text-gray-600 mb-1">Players</div>
+                    <div className="text-sm">
                       {squad.players?.length ? 
                         squad.players.map(player => getPlayerName(player.id)).join(', ') : 
                         'No players'
                       }
-                    </TableCell>
-                    <TableCell>
-                      <Link href={`/squads/edit/${squad.id}`}>
-                        <Button variant="outline" size="sm">
-                          Edit Squad
-                        </Button>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-3">
+                    <Link href={`/squads/edit/${squad.id}`}>
+                      <Button variant="outline" size="sm" className="w-full">
+                        Edit Squad
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Goalkeeper</TableHead>
+                      <TableHead>Teams</TableHead>
+                      <TableHead>Players</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>
+                        {squad.goalkeeper?.id ? getPlayerName(squad.goalkeeper.id) : 'No goalkeeper'}
+                      </TableCell>
+                      <TableCell>
+                        {squad.teams?.length ? 
+                          squad.teams.map(team => getTeamName(team.id)).join(', ') : 
+                          'No teams'
+                        }
+                      </TableCell>
+                      <TableCell>
+                        {squad.players?.length ? 
+                          squad.players.map(player => getPlayerName(player.id)).join(', ') : 
+                          'No players'
+                        }
+                      </TableCell>
+                      <TableCell>
+                        <Link href={`/squads/edit/${squad.id}`}>
+                          <Button variant="outline" size="sm">
+                            Edit Squad
+                          </Button>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         ))}

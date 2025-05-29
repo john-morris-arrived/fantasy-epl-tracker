@@ -202,8 +202,8 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6">Squad Scoring</h1>
+      <div className="container mx-auto py-4 px-4 md:py-8">
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Squad Scoring</h1>
         <div className="text-center text-gray-500">Loading squad scores...</div>
       </div>
     );
@@ -211,8 +211,8 @@ export default function Home() {
 
   if (error) {
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6">Squad Scoring</h1>
+      <div className="container mx-auto py-4 px-4 md:py-8">
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Squad Scoring</h1>
         <div className="text-center text-red-500">Error: {error}</div>
       </div>
     );
@@ -220,87 +220,143 @@ export default function Home() {
 
   if (!squadScores.length) {
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6">Squad Scoring</h1>
+      <div className="container mx-auto py-4 px-4 md:py-8">
+        <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Squad Scoring</h1>
         <div className="text-center text-gray-500">No squads found</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">Squad Scoring</h1>
-      <div className="mb-4 text-sm text-gray-600">
-        <p><strong>Scoring System:</strong></p>
-        <p>• Goalkeepers: Clean sheets × 25 points</p>
-        <p>• Teams: Wins × 10 + Draws × 4 + Goals × 2 (with difficulty multipliers)</p>
-        <p>• Players: (Goals + Assists) × 12 points</p>
+    <div className="container mx-auto py-4 px-4 md:py-8">
+      <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Squad Scoring</h1>
+      <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <p className="font-semibold text-blue-900 mb-2">Scoring System:</p>
+        <div className="space-y-1 text-sm text-blue-800">
+          <p>• <span className="font-medium">Goalkeepers:</span> Clean sheets × 25 points</p>
+          <p>• <span className="font-medium">Teams:</span> Wins × 10 + Draws × 4 + Goals × 2 (with difficulty multipliers)</p>
+          <p>• <span className="font-medium">Players:</span> (Goals + Assists) × 12 points</p>
+        </div>
       </div>
       
-      <div className="grid gap-6">
+      <div className="grid gap-4 md:gap-6">
         {squadScores.map((squadScore, index) => (
           <Card key={squadScore.squad.id}>
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span>#{index + 1} {squadScore.squad.name}</span>
-                <span className="text-2xl font-bold text-green-600">
+            <CardHeader className="pb-3 md:pb-6">
+              <CardTitle className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                <span className="text-lg md:text-xl">#{index + 1} {squadScore.squad.name}</span>
+                <span className="text-xl md:text-2xl font-bold text-green-600">
                   {squadScore.totalScore} pts
                 </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Player/Team</TableHead>
-                    <TableHead>Points</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">Goalkeeper</TableCell>
-                    <TableCell>
-                      {squadScore.squad.goalkeeper?.id ? 
-                        getPlayerName(squadScore.squad.goalkeeper.id) : 
-                        'No goalkeeper'
-                      }
-                    </TableCell>
-                    <TableCell className="font-bold">
-                      {squadScore.goalkeeperScore}
-                    </TableCell>
-                  </TableRow>
+              {/* Mobile Layout */}
+              <div className="block md:hidden">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="font-medium text-sm">Goalkeeper</span>
+                    <div className="text-right">
+                      <div className="text-sm">
+                        {squadScore.squad.goalkeeper?.id ? 
+                          getPlayerName(squadScore.squad.goalkeeper.id) : 
+                          'No goalkeeper'
+                        }
+                      </div>
+                      <div className="font-bold text-green-600">
+                        {squadScore.goalkeeperScore} pts
+                      </div>
+                    </div>
+                  </div>
+                  
                   {squadScore.squad.teams.map((team, teamIndex) => (
-                    <TableRow key={team.id}>
-                      <TableCell className="font-medium">
-                        Team {teamIndex + 1}
-                      </TableCell>
-                      <TableCell>{getTeamName(team.id)}</TableCell>
-                      <TableCell className="font-bold">
-                        {squadScore.teamScores[teamIndex] || 0}
-                      </TableCell>
-                    </TableRow>
+                    <div key={team.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="font-medium text-sm">Team {teamIndex + 1}</span>
+                      <div className="text-right">
+                        <div className="text-sm">{getTeamName(team.id)}</div>
+                        <div className="font-bold text-green-600">
+                          {squadScore.teamScores[teamIndex] || 0} pts
+                        </div>
+                      </div>
+                    </div>
                   ))}
+                  
                   {squadScore.squad.players.map((player, playerIndex) => (
-                    <TableRow key={player.id}>
-                      <TableCell className="font-medium">
-                        Player {playerIndex + 1}
+                    <div key={player.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="font-medium text-sm">Player {playerIndex + 1}</span>
+                      <div className="text-right">
+                        <div className="text-sm">{getPlayerName(player.id)}</div>
+                        <div className="font-bold text-green-600">
+                          {squadScore.playerScores[playerIndex] || 0} pts
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <div className="flex justify-between items-center p-3 bg-green-100 rounded-lg border-2 border-green-200">
+                    <span className="font-bold text-lg">TOTAL</span>
+                    <div className="font-bold text-xl text-green-600">
+                      {squadScore.totalScore} pts
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Player/Team</TableHead>
+                      <TableHead>Points</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Goalkeeper</TableCell>
+                      <TableCell>
+                        {squadScore.squad.goalkeeper?.id ? 
+                          getPlayerName(squadScore.squad.goalkeeper.id) : 
+                          'No goalkeeper'
+                        }
                       </TableCell>
-                      <TableCell>{getPlayerName(player.id)}</TableCell>
                       <TableCell className="font-bold">
-                        {squadScore.playerScores[playerIndex] || 0}
+                        {squadScore.goalkeeperScore}
                       </TableCell>
                     </TableRow>
-                  ))}
-                  <TableRow className="bg-gray-50">
-                    <TableCell className="font-bold">TOTAL</TableCell>
-                    <TableCell></TableCell>
-                    <TableCell className="font-bold text-lg text-green-600">
-                      {squadScore.totalScore}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+                    {squadScore.squad.teams.map((team, teamIndex) => (
+                      <TableRow key={team.id}>
+                        <TableCell className="font-medium">
+                          Team {teamIndex + 1}
+                        </TableCell>
+                        <TableCell>{getTeamName(team.id)}</TableCell>
+                        <TableCell className="font-bold">
+                          {squadScore.teamScores[teamIndex] || 0}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {squadScore.squad.players.map((player, playerIndex) => (
+                      <TableRow key={player.id}>
+                        <TableCell className="font-medium">
+                          Player {playerIndex + 1}
+                        </TableCell>
+                        <TableCell>{getPlayerName(player.id)}</TableCell>
+                        <TableCell className="font-bold">
+                          {squadScore.playerScores[playerIndex] || 0}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-gray-50">
+                      <TableCell className="font-bold">TOTAL</TableCell>
+                      <TableCell></TableCell>
+                      <TableCell className="font-bold text-lg text-green-600">
+                        {squadScore.totalScore}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         ))}
